@@ -1,0 +1,107 @@
+# stETH price feed specification
+
+The feed is used to fetch stETH/ETH pair price in a safe manner. By "safe" we mean that the price should be expensive to manipulate in any direction, e.g. using flash loans or sandwich attacks.
+
+The feed should initially interface with two contracts:
+
+1. Curve stETH/ETH pool: [source](https://github.com/curvefi/curve-contract/blob/c6df0cf/contracts/pools/steth/StableSwapSTETH.vy), [deployed contract](https://etherscan.io/address/0xdc24316b9ae028f1497c275eb9192a3ea0f67022).
+2. Curve stETH/ETH pool Merkle oracle: [source](https://github.com/lidofinance/curve-merkle-oracle).
+
+The pool is used as the main price source, and the oracle provides time-shifted price from the same pool used to establish a safe price range.
+
+
+## The safe price range
+
+The price is defined as the amount of ETH wei needed to buy 1 stETH. For example, a price equal to `10**18` would mean that stETH is pegged 1:1 to ETH.
+
+The safe price is defined as the one that satisfies all of the following conditions:
+
+* The absolute value of percentage difference between the safe price and the time-shifted price fetched from the Merkle oracle is at most `max_safe_price_difference`.
+* The safe price is at most `10**18`, meaning that stETH cannot be more expensive than ETH.
+
+
+## Future upgrades
+
+The feed contract should be put behind an upgradeable proxy so the implementation can be upgraded when new price sources appear.
+
+
+## Interface
+
+##### `__init__(max_safe_price_difference: uint256, admin: address)`
+
+Initializes the contract.
+
+* `max_safe_price_difference` maximum allowed safe price change: how much the price fetched from the pool is allowed to deviate from the time-shifted price provided by the Merkle oracle in order to be considered safe; `10**18` corresponds to 100%.
+* `admin` the address that's allowed to change the maximum allowed price change.
+
+
+##### `safe_price() -> (price: uint256, timestamp: uint256)`
+
+Returns the cached safe price and its timestamp. Reverts if no cached price was set.
+
+```python
+@view
+def safe_price():
+  assert self.safe_price_timestamp != 0
+  return (self.safe_price, self.safe_price_timestamp)
+```
+
+
+##### `current_price() -> (price: uint256, is_safe: bool)`
+
+Returns the current pool price and whether the price is safe.
+
+```python
+@view
+def _current_price():
+  pool_price = StableSwap(CURVE_POOL_ADDR).get_dy(1, 0, 10**18)
+  shifted_price = StableSwapStateOracle(ORACLE_ADDR).stethPrice()
+  is_changed_unsafely = self.percentage_diff(pool_price, shifted_price) > self.max_safe_price_difference
+  return (pool_price, is_changed_unsafely)
+
+@view
+def current_price():
+    (price, is_changed_unsafely) = self._current_price()
+    is_safe = price <= 10**18 and not is_changed_unsafely
+    return (price, is_safe)
+```
+
+
+##### `update_safe_price() -> uint256`
+
+Sets the cached safe price to the current pool price.
+
+If the price is higher than `10**18`, sets the cached safe price to `10**18`. If the price is not safe for any other reason, reverts.
+
+```python
+def update_safe_price():
+  (price, is_changed_unsafely) = self._current_price()
+  assert not is_changed_unsafely, "price is not safe"
+  self.safe_price = max(price, 10**18)
+  self.safe_price_timestamp = block.timestamp
+  return price
+```
+
+
+##### `fetch_safe_price(max_age: uint256) -> (price: uint256, timestamp: uint256)`
+
+Returns the cached safe price and its timestamp. Calls `update_safe_price()` prior to that if the cached safe price is older than `max_age` seconds.
+
+```python
+def fetch_safe_price(max_age):
+  if block.timestamp - self.safe_price_timestamp > max_age:
+    price = self.update_safe_price()
+    return (price, block.timsetamp)
+  else:
+    return (self.safe_price, self.safe_price_timestamp)
+```
+
+
+##### `set_admin(admin: address)`
+
+Updates the admin address. May only be called by the current admin.
+
+
+##### `set_max_safe_price_difference(max_safe_price_difference: uint256)`
+
+Updates the maximum difference between the safe price and the time-shifted price. May only be called by the admin.
