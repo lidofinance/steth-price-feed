@@ -1,6 +1,6 @@
 # stETH price feed specification
 
-The feed is used to fetch stETH/ETH pair price in a safe manner. By "safe" we mean that the price should be expensive to manipulate in any direction, e.g. using flash loans or sandwich attacks.
+The feed is used to fetch stETH/ETH pair price in a safe manner. By "safe" we mean that the price should be expensive to significantly manipulate in any direction, e.g. using flash loans or sandwich attacks.
 
 The feed should initially interface with two contracts:
 

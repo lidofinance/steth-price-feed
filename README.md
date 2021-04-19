@@ -1,7 +1,7 @@
 # Price feed for stETH/ETH pair
 
 The feed is used to fetch stETH/ETH pair price in a safe manner, which means that the price
-should be expensive to manipulate in any direction.
+should be expensive to significantly manipulate in any direction.
 
 The price is defined as the amount of ETH wei needed to buy 1 stETH. For example, a price equal
 to `10**18` would mean that stETH is pegged 1:1 to ETH.
