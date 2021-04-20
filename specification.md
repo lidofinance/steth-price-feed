@@ -1,4 +1,17 @@
-# stETH price feed specification
+# stETH Price Oracle
+
+Lido intends to provide secure and reliable price feed for stETH for protocol that intend to integrate it. Unfortunately, Chainlik is not available for stETH and Uniswap TWAP is not feasible at the moment (we'd want deep liquidity on stETH/ETH pair for this price, but Uni v2 doesn't allow tight curves for similaraly-riced coins). 
+
+stETH has deep liquidity in Curve pool (link) but it doesn't have a TWAP capability, so that's out too. In the moment Curve price is flashloanable, if not easily. We decided that in a pinch we can provide a "price anchor" that would attest that "stETH/ETH price on curve used to be around in recent past" and a price oracle that could provide a reasonably safe estimation of current stETH/ETH price.
+
+## Vocabulary
+
+*Current price* - current price of stETH on Curve pool. Flashloanable.
+*Safe price* - 
+*Historical price* - 
+*Safe price range*
+
+## stETH price feed specification
 
 The feed is used to fetch stETH/ETH pair price in a safe manner. By "safe" we mean that the price should be expensive to significantly manipulate in any direction, e.g. using flash loans or sandwich attacks.
 
@@ -10,7 +23,7 @@ The feed should initially interface with two contracts:
 The pool is used as the main price source, and the oracle provides time-shifted price from the same pool used to establish a safe price range.
 
 
-## The safe price range
+### The safe price range
 
 The price is defined as the amount of ETH wei needed to buy 1 stETH. For example, a price equal to `10**18` would mean that stETH is pegged 1:1 to ETH.
 
@@ -20,12 +33,12 @@ The safe price is defined as the one that satisfies all of the following conditi
 * The safe price is at most `10**18`, meaning that stETH cannot be more expensive than ETH.
 
 
-## Future upgrades
+### Future upgrades
 
 The feed contract should be put behind an upgradeable proxy so the implementation can be upgraded when new price sources appear.
 
 
-## Interface
+### Interface
 
 ##### `__init__(max_safe_price_difference: uint256, admin: address)`
 
@@ -105,3 +118,8 @@ Updates the admin address. May only be called by the current admin.
 ##### `set_max_safe_price_difference(max_safe_price_difference: uint256)`
 
 Updates the maximum difference between the safe price and the time-shifted price. May only be called by the admin.
+
+
+## Further upgrade plans
+
++ Balancer + Univ3 + Chainlink + ???
