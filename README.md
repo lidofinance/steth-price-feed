@@ -23,3 +23,12 @@ See the detailed specification in [specification.md](./specification.md).
 * `fetch_safe_price(max_age: uint256) -> (price: uint256, timestamp: uint256)` returns the cached
   safe price and its timestamp. Calls `update_safe_price()` prior to that if the cached safe
   price is older than `max_age` seconds.
+
+
+## Deploy variables
+
+* `DEPLOYER` required
+* `STABLE_SWAP_ORACLE_ADDRESS` required, address of stable swap oracle
+* `CURVE_POOL_ADDRESS` required, address of curve pool
+* `MAX_SAFE_PRICE_DIFFERENCE` optional, min:0, max:10000, default to 500
+* `ADMIN` optional, default to DEPLOYER
