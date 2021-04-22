@@ -1,15 +1,17 @@
 # stETH Price Oracle
 
-Lido intends to provide secure and reliable price feed for stETH for protocol that intend to integrate it. Unfortunately, Chainlik is not available for stETH and Uniswap TWAP is not feasible at the moment (we'd want deep liquidity on stETH/ETH pair for this price, but Uni v2 doesn't allow tight curves for similaraly-riced coins). 
+Lido intends to provide secure and reliable price feed for stETH for protocols that intend to integrate it. Unfortunately, Chainlik is not available for stETH and Uniswap TWAP is not feasible at the moment: we'd want deep liquidity on stETH/ETH pair for this price, but Uni v2 doesn't allow tight curves for similaraly-priced coins.
 
-stETH has deep liquidity in Curve pool (link) but it doesn't have a TWAP capability, so that's out too. In the moment Curve price is flashloanable, if not easily. We decided that in a pinch we can provide a "price anchor" that would attest that "stETH/ETH price on curve used to be around in recent past" and a price oracle that could provide a reasonably safe estimation of current stETH/ETH price.
+stETH has deep liquidity in the [Curve pool](https://etherscan.io/address/0xdc24316b9ae028f1497c275eb9192a3ea0f67022) but it doesn't have a TWAP capability, so that's out, too. In the moment Curve price is flashloanable, if not easily. We decided that in a pinch we can provide a "price anchor" that would attest that "stETH/ETH price on Curve used to be around in recent past" (implemented using the Merkle price oracle) and a price feed that could provide a reasonably safe estimation of current stETH/ETH price.
 
 ## Vocabulary
 
-*Current price* - current price of stETH on Curve pool. Flashloanable.
-*Safe price* - 
-*Historical price* - 
-*Safe price range*
+* **Current price**—current price of stETH on Curve pool. Flashloanable.
+* **Historical price**—the price of stETH on Curve pool that was at least 15 blocks ago. May be older than 15 blocks: in that case, the pool price that was 15 blocks ago differs from the "historical price" by no more than `N`%.
+* **Safe price range**—the range from `historical price - N%` to `min(historical price + N%, 1)`.
+* **Safe price**—the price that's within the safe price range.
+
+The parameter `N` is configured by the price feed admin; we're planning to initially set it to `5%`.
 
 ## stETH price feed specification
 

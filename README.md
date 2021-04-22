@@ -6,7 +6,12 @@ should be expensive to significantly manipulate in any direction.
 The price is defined as the amount of ETH wei needed to buy 1 stETH. For example, a price equal
 to `10**18` would mean that stETH is pegged 1:1 to ETH.
 
-See the detailed specification in [specification.md](./specification.md).
+* **Current price**—current price of stETH on Curve pool. Flashloanable.
+* **Historical price**—the price of stETH on Curve pool that was at least 15 blocks ago. May be older than 15 blocks: in that case, the pool price that was 15 blocks ago differs from the "historical price" by no more than `N`%.
+* **Safe price range**—the range from `historical price - N%` to `min(historical price + N%, 1)`.
+* **Safe price**—the price that's within the safe price range.
+
+The parameter `N` is configured by the price feed admin; we're planning to initially set it to `5%`. See the detailed specification in [specification.md](./specification.md).
 
 
 ## Price feed interface
