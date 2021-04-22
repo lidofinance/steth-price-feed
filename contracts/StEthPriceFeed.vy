@@ -1,4 +1,4 @@
-# @version ^0.2.12
+# @version 0.2.12
 
 admin: public(address)
 max_safe_price_difference: public(uint256)
