@@ -48,8 +48,9 @@ def _percentage_diff(new: uint256, old: uint256) -> uint256:
 @view
 @external
 def safe_price() -> (uint256, uint256):
-    assert self.safe_price_timestamp != 0
-    return (self.safe_price_value, self.safe_price_timestamp)
+    safe_price_timestamp: uint256 = self.safe_price_timestamp
+    assert safe_price_timestamp != 0
+    return (self.safe_price_value, safe_price_timestamp)
 
 
 @view
@@ -89,11 +90,12 @@ def update_safe_price() -> uint256:
 
 @external
 def fetch_safe_price(max_age: uint256) -> (uint256, uint256):
-    if block.timestamp - self.safe_price_timestamp > max_age:
+    safe_price_timestamp: uint256 = self.safe_price_timestamp
+    if block.timestamp - safe_price_timestamp > max_age:
         price: uint256 = self._update_safe_price()
         return (price, block.timestamp)
     else:
-        return (self.safe_price_value, self.safe_price_timestamp)
+        return (self.safe_price_value, safe_price_timestamp)
 
 
 @external
