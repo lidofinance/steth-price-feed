@@ -92,7 +92,7 @@ If the price is higher than `10**18`, sets the cached safe price to `10**18`. If
 def update_safe_price():
   (price, is_changed_unsafely) = self._current_price()
   assert not is_changed_unsafely, "price is not safe"
-  self.safe_price = min(price, 10**18)
+  self.safe_price = max(price, 10**18)
   self.safe_price_timestamp = block.timestamp
   return price
 ```
