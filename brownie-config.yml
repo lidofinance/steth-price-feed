@@ -10,4 +10,6 @@ networks:
       accounts: 10
       evm_version: istanbul
       mnemonic: brownie
-      fork: https://localhost:9545
+      fork: https://mainnet.infura.io/v3/0edc492513f74d5eb61ef1f90396494d
+dependencies:
+  - OpenZeppelin/openzeppelin-contracts@4.0.0

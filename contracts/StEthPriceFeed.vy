@@ -1,5 +1,7 @@
 # @version 0.2.12
 
+
+initialized: public(bool)
 admin: public(address)
 max_safe_price_difference: public(uint256)
 safe_price_value: public(uint256)
@@ -17,7 +19,7 @@ interface StableSwapStateOracle:
 
 
 @external
-def __init__(
+def initialize(
     max_safe_price_difference: uint256,
     stable_swap_oracle_address: address,
     curve_pool_address: address,
@@ -30,6 +32,8 @@ def __init__(
     @param curve_pool_address Curve stEth/Eth pool address
     @param stable_swap_oracle_address Stable swap oracle address
     """
+    assert self.initialized == False
+    self.initialized = True
     self.max_safe_price_difference = max_safe_price_difference
     self.admin = admin
     self.stable_swap_oracle_address = stable_swap_oracle_address
