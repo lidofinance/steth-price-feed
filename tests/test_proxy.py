@@ -3,8 +3,8 @@ from brownie import reverts, Contract
 
 
 @pytest.fixture(scope='module')
-def feed_proxy(stEth_price_feed, UpgradableProxy):
-   return Contract.from_abi('UpgradableProxy', stEth_price_feed.address, UpgradableProxy.abi)
+def feed_proxy(price_feed, UpgradableProxy):
+   return Contract.from_abi('UpgradableProxy', price_feed.address, UpgradableProxy.abi)
 
 
 def test_upgrade(feed_proxy, accounts, StEthPriceFeed):
