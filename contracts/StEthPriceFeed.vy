@@ -3,7 +3,6 @@
 # @version 0.2.12
 
 
-initialized: public(bool)
 admin: public(address)
 max_safe_price_difference: public(uint256)
 safe_price_value: public(uint256)
@@ -28,14 +27,14 @@ def initialize(
     admin: address
 ):
     """
-    @notice Contract constructor
+    @notice Initializes the feed
     @param max_safe_price_difference maximum allowed safe price change. 10000 equals to 100%
     @param admin Contract admin address, that's allowed to change the maximum allowed price change
     @param curve_pool_address Curve stEth/Eth pool address
     @param stable_swap_oracle_address Stable swap oracle address
     """
-    assert self.initialized == False
-    self.initialized = True
+    assert curve_pool_address != ZERO_ADDRESS
+    assert self.curve_pool_address == ZERO_ADDRESS
     self.max_safe_price_difference = max_safe_price_difference
     self.admin = admin
     self.stable_swap_oracle_address = stable_swap_oracle_address
