@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# @author Lido <info@lido.fi>
 # @version 0.2.12
 
 
