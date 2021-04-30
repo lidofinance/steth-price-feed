@@ -17,7 +17,7 @@ def deploy_stEth_price_feed(max_safe_price_difference,
                                          call_data,
                                          tx_params,
                                          publish_source=False)
-    return Contract.from_abi("StEthPriceFeed", proxy, price_feed_contract.abi)
+    return Contract.from_abi('StEthPriceFeed', proxy.address, StEthPriceFeed.abi)
 
 
 def main():

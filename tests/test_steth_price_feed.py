@@ -1,7 +1,4 @@
-import pytest
-from brownie import (reverts, StEthPriceFeed)
-from brownie.network.state import Chain
-from brownie.convert import to_bytes
+from brownie import chain, reverts
 
 
 def test_max_safe_price_difference(stEth_price_feed):
@@ -35,7 +32,6 @@ def test_unsafe_current_price_diff_gt_max_diff(stable_swap_oracle, curve_pool,
 
 def test_update_safe_price(stable_swap_oracle, curve_pool, stEth_price_feed,
                            stranger):
-    chain = Chain()
     stable_swap_oracle.set_price(1e18)
     curve_pool.set_price(9.8 * 1e17)
     stEth_price_feed.update_safe_price({"from": stranger})
@@ -55,7 +51,6 @@ def test_update_safe_price_fails_on_unsafe(stable_swap_oracle, curve_pool,
 
 def test_update_safe_price_with_gt_1(stable_swap_oracle, curve_pool,
                                      stEth_price_feed, stranger):
-    chain = Chain()
     stable_swap_oracle.set_price(1e18)
     curve_pool.set_price(9.8 * 1e17)
     stEth_price_feed.update_safe_price({"from": stranger})
@@ -89,33 +84,3 @@ def test_set_max_safe_price_difference_acl_fails(stEth_price_feed, stranger):
     with reverts():
         stEth_price_feed.set_max_safe_price_difference(5000,
                                                        {"from": stranger})
-
-
-def test_upgade(proxy, stEth_price_feed, accounts):
-    admin = proxy.getProxyAdmin()
-    new_price_feed_contract = StEthPriceFeed.deploy({"from": admin})
-    proxy.upgradeTo(new_price_feed_contract, {"from": admin})
-
-    assert proxy.implementation() == new_price_feed_contract
-
-
-def test_upgade_fails_by_stanger(proxy, stEth_price_feed, stranger):
-    admin = proxy.getProxyAdmin()
-    new_price_feed_contract = StEthPriceFeed.deploy({"from": admin})
-    with reverts():
-        proxy.upgradeTo(new_price_feed_contract, {"from": stranger})
-
-
-def test_set_proxy_owner(proxy, accounts):
-    old_owner = proxy.getProxyAdmin()
-    new_owner = accounts[2]
-    proxy.changeProxyAdmin(new_owner, {"from": old_owner})
-
-    assert proxy.getProxyAdmin() == new_owner
-
-    proxy.changeProxyAdmin(old_owner, {"from": new_owner})
-
-
-def test_set_proxy_owner_fails_by_stranger(proxy, stranger):
-    with reverts():
-        proxy.changeProxyAdmin(stranger, {"from": stranger})
