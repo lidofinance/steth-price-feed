@@ -1,5 +1,5 @@
 import sys, os
-from brownie import (StEthPriceFeed, OwnableUpgradableProxy, Contract)
+from brownie import (StEthPriceFeed, UpgradableProxy, Contract)
 from brownie.convert import to_bytes
 from utils.config import (get_deployer_account, get_is_live, get_env,
                           prompt_bool)
@@ -13,7 +13,7 @@ def deploy_stEth_price_feed(max_safe_price_difference,
     call_data = price_feed_contract.initialize.encode_input(
         max_safe_price_difference, stable_swap_oracle_address,
         curve_pool_address, admin)
-    proxy = OwnableUpgradableProxy.deploy(price_feed_contract,
+    proxy = UpgradableProxy.deploy(price_feed_contract,
                                          call_data,
                                          tx_params,
                                          publish_source=False)

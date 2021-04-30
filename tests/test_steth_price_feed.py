@@ -92,32 +92,30 @@ def test_set_max_safe_price_difference_acl_fails(stEth_price_feed, stranger):
 
 
 def test_upgade(proxy, stEth_price_feed, accounts):
-    owner = proxy.getOwner()
-    new_price_feed_contract = StEthPriceFeed.deploy({"from": owner},
-                                                    publish_source=False)
-    proxy.upgradeTo(new_price_feed_contract, {"from": owner})
+    admin = proxy.getProxyAdmin()
+    new_price_feed_contract = StEthPriceFeed.deploy({"from": admin})
+    proxy.upgradeTo(new_price_feed_contract, {"from": admin})
 
     assert proxy.implementation() == new_price_feed_contract
 
 
 def test_upgade_fails_by_stanger(proxy, stEth_price_feed, stranger):
-    owner = proxy.getOwner()
-    new_price_feed_contract = StEthPriceFeed.deploy({"from": owner},
-                                                    publish_source=False)
+    admin = proxy.getProxyAdmin()
+    new_price_feed_contract = StEthPriceFeed.deploy({"from": admin})
     with reverts():
         proxy.upgradeTo(new_price_feed_contract, {"from": stranger})
 
 
 def test_set_proxy_owner(proxy, accounts):
-    old_owner = proxy.getOwner()
+    old_owner = proxy.getProxyAdmin()
     new_owner = accounts[2]
-    proxy.setOwner(new_owner, {"from": old_owner})
+    proxy.changeProxyAdmin(new_owner, {"from": old_owner})
 
-    assert proxy.getOwner() == new_owner
+    assert proxy.getProxyAdmin() == new_owner
 
-    proxy.setOwner(old_owner, {"from": new_owner})
+    proxy.changeProxyAdmin(old_owner, {"from": new_owner})
 
 
 def test_set_proxy_owner_fails_by_stranger(proxy, stranger):
     with reverts():
-        proxy.setOwner(stranger, {"from": stranger})
+        proxy.changeProxyAdmin(stranger, {"from": stranger})

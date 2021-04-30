@@ -1,3 +1,7 @@
+dependencies:
+  # we're using 4.0.0 since we don't need proxy beacon logic from 4.1.0
+  - OpenZeppelin/openzeppelin-contracts@4.0.0
+
 networks:
   default: development
   development:
@@ -10,6 +14,4 @@ networks:
       accounts: 10
       evm_version: istanbul
       mnemonic: brownie
-      fork: https://mainnet.infura.io/v3/0edc492513f74d5eb61ef1f90396494d
-dependencies:
-  - OpenZeppelin/openzeppelin-contracts@4.0.0
+      fork: https://localhost:9545

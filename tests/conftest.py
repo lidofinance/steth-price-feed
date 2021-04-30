@@ -1,7 +1,7 @@
 import pytest
 from scripts.deploy import deploy_stEth_price_feed
 from utils.config import (get_is_live, get_deployer_account)
-from brownie import (CurvePoolMock, StableSwapOracleMock, Contract, OwnableUpgradableProxy)
+from brownie import (CurvePoolMock, StableSwapOracleMock, Contract, UpgradableProxy)
 
 
 @pytest.fixture(scope='module')
@@ -37,4 +37,4 @@ def stranger(accounts):
 
 @pytest.fixture(scope='module')
 def proxy(stEth_price_feed):
-   return Contract.from_abi("OwnableUpgradableProxy", stEth_price_feed, OwnableUpgradableProxy.abi)
+   return Contract.from_abi('UpgradableProxy', stEth_price_feed, UpgradableProxy.abi)
