@@ -97,7 +97,7 @@ def update_safe_price() -> uint256:
 @external
 def fetch_safe_price(max_age: uint256) -> (uint256, uint256):
     safe_price_timestamp: uint256 = self.safe_price_timestamp
-    if block.timestamp - safe_price_timestamp > max_age:
+    if safe_price_timestamp == 0 or block.timestamp - safe_price_timestamp > max_age:
         price: uint256 = self._update_safe_price()
         return (price, block.timestamp)
     else:
