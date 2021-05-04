@@ -41,6 +41,7 @@ contract UpgradableProxy is ERC1967Proxy {
      * a Solidity constructor.
      */
     constructor(address logic, bytes memory data) payable ERC1967Proxy(logic, data) {
+        assert(_ADMIN_SLOT == bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1));
         _setAdmin(msg.sender);
     }
 
