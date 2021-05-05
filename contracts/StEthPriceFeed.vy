@@ -3,6 +3,9 @@
 # @version 0.2.12
 
 
+CURVE_ETH_INDEX: constant(uint256) = 0
+CURVE_STETH_INDEX: constant(uint256) = 1
+
 admin: public(address)
 max_safe_price_difference: public(uint256)
 safe_price_value: public(uint256)
@@ -66,7 +69,7 @@ def safe_price() -> (uint256, uint256):
 @view
 @internal
 def _current_price() -> (uint256, bool):
-    pool_price: uint256 = StableSwap(self.curve_pool_address).get_dy(1, 0, 10**18)
+    pool_price: uint256 = StableSwap(self.curve_pool_address).get_dy(CURVE_STETH_INDEX, CURVE_ETH_INDEX, 10**18)
     shifted_price: uint256 = StableSwapStateOracle(self.stable_swap_oracle_address).stethPrice()
     is_changed_unsafely: bool = self._percentage_diff(pool_price, shifted_price) > self.max_safe_price_difference
     return (pool_price, is_changed_unsafely)
