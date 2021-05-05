@@ -94,7 +94,8 @@ def _update_safe_price() -> uint256:
     is_changed_unsafely: bool = True
     price, is_changed_unsafely = self._current_price()
     assert not is_changed_unsafely, "price is not safe"
-    self.safe_price_value = min(10**18, price)
+    price = min(10**18, price)
+    self.safe_price_value = price
     self.safe_price_timestamp = block.timestamp
     return price
 
