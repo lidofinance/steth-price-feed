@@ -27,7 +27,8 @@ def initialize(
     admin: address
 ):
     """
-    @notice Initializes the feed
+    @dev Initializes the feed.
+
     @param max_safe_price_difference maximum allowed safe price change. 10000 equals to 100%
     @param admin Contract admin address, that's allowed to change the maximum allowed price change
     @param curve_pool_address Curve stEth/Eth pool address
@@ -35,6 +36,7 @@ def initialize(
     """
     assert curve_pool_address != ZERO_ADDRESS
     assert self.curve_pool_address == ZERO_ADDRESS
+
     self.max_safe_price_difference = max_safe_price_difference
     self.admin = admin
     self.stable_swap_oracle_address = stable_swap_oracle_address
@@ -53,6 +55,9 @@ def _percentage_diff(new: uint256, old: uint256) -> uint256:
 @view
 @external
 def safe_price() -> (uint256, uint256):
+    """
+    @dev Returns the cached safe price and its timestamp. Reverts if no cached price was set.
+    """
     safe_price_timestamp: uint256 = self.safe_price_timestamp
     assert safe_price_timestamp != 0
     return (self.safe_price_value, safe_price_timestamp)
@@ -70,6 +75,9 @@ def _current_price() -> (uint256, bool):
 @view
 @external
 def current_price() -> (uint256, bool):
+    """
+    @dev Returns the current pool price and whether the price is safe.
+    """
     price: uint256 = 0
     is_changed_unsafely: bool = True
     price, is_changed_unsafely = self._current_price()
@@ -90,11 +98,23 @@ def _update_safe_price() -> uint256:
 
 @external
 def update_safe_price() -> uint256:
+    """
+    @dev Sets the cached safe price to the current pool price.
+
+    If the price is higher than 10**18, sets the cached safe price to 10**18.
+    If the price is not safe for any other reason, reverts.
+    """
     return self._update_safe_price()
 
 
 @external
 def fetch_safe_price(max_age: uint256) -> (uint256, uint256):
+    """
+    @dev Returns the cached safe price and its timestamp.
+
+    Calls `update_safe_price()` prior to that if the cached safe price
+    is older than `max_age` seconds.
+    """
     safe_price_timestamp: uint256 = self.safe_price_timestamp
     if safe_price_timestamp == 0 or block.timestamp - safe_price_timestamp > max_age:
         price: uint256 = self._update_safe_price()
@@ -105,11 +125,21 @@ def fetch_safe_price(max_age: uint256) -> (uint256, uint256):
 
 @external
 def set_admin(admin: address):
+    """
+    @dev Updates the admin address.
+
+    May only be called by the current admin.
+    """
     assert msg.sender == self.admin
     self.admin = admin
 
 
 @external
 def set_max_safe_price_difference(max_safe_price_difference: uint256):
+    """
+    @dev Updates the maximum difference between the safe price and the time-shifted price.
+
+    May only be called by the admin.
+    """
     assert msg.sender == self.admin
     self.max_safe_price_difference = max_safe_price_difference
