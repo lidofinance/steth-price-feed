@@ -1,4 +1,7 @@
+# SPDX-License-Identifier: MIT
+# @author Lido <info@lido.fi>
 # @version 0.2.12
+
 
 admin: public(address)
 max_safe_price_difference: public(uint256)
@@ -17,19 +20,21 @@ interface StableSwapStateOracle:
 
 
 @external
-def __init__(
+def initialize(
     max_safe_price_difference: uint256,
     stable_swap_oracle_address: address,
     curve_pool_address: address,
     admin: address
 ):
     """
-    @notice Contract constructor
+    @notice Initializes the feed
     @param max_safe_price_difference maximum allowed safe price change. 10000 equals to 100%
     @param admin Contract admin address, that's allowed to change the maximum allowed price change
     @param curve_pool_address Curve stEth/Eth pool address
     @param stable_swap_oracle_address Stable swap oracle address
     """
+    assert curve_pool_address != ZERO_ADDRESS
+    assert self.curve_pool_address == ZERO_ADDRESS
     self.max_safe_price_difference = max_safe_price_difference
     self.admin = admin
     self.stable_swap_oracle_address = stable_swap_oracle_address
@@ -91,7 +96,7 @@ def update_safe_price() -> uint256:
 @external
 def fetch_safe_price(max_age: uint256) -> (uint256, uint256):
     safe_price_timestamp: uint256 = self.safe_price_timestamp
-    if block.timestamp - safe_price_timestamp > max_age:
+    if safe_price_timestamp == 0 or block.timestamp - safe_price_timestamp > max_age:
         price: uint256 = self._update_safe_price()
         return (price, block.timestamp)
     else:
