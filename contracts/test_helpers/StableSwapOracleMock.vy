@@ -1,4 +1,5 @@
 # @version 0.2.12
+# @dev This is a test helper contract only, don't use it in production!
 
 
 price: public(uint256)
