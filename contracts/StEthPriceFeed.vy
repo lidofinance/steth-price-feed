@@ -22,6 +22,11 @@ interface StableSwapStateOracle:
     def stethPrice() -> uint256: view
 
 
+event SafePriceUpdated:
+    from_price: uint256
+    to_price: uint256
+
+
 @external
 def initialize(
     max_safe_price_difference: uint256,
@@ -92,11 +97,16 @@ def current_price() -> (uint256, bool):
 def _update_safe_price() -> uint256:
     price: uint256 = 0
     is_changed_unsafely: bool = True
+
     price, is_changed_unsafely = self._current_price()
     assert not is_changed_unsafely, "price is not safe"
+
     price = min(10**18, price)
+    log SafePriceUpdated(self.safe_price_value, price)
+
     self.safe_price_value = price
     self.safe_price_timestamp = block.timestamp
+
     return price
 
 
