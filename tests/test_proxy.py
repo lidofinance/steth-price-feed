@@ -2,7 +2,12 @@ import pytest
 from brownie import reverts, Contract
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='function')
+def price_feed(deploy_price_feed):
+    return deploy_price_feed(max_safe_price_difference=500)
+
+
+@pytest.fixture(scope='function')
 def feed_proxy(price_feed, UpgradableProxy):
    return Contract.from_abi('UpgradableProxy', price_feed.address, UpgradableProxy.abi)
 
