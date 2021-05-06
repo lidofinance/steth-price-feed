@@ -20,7 +20,16 @@ library StorageSlot {
     }
 }
 
-contract UpgradableProxy is ERC1967Proxy {
+interface IPriceFeed {
+    function initialize(
+        uint256 maxSafePriceDifference,
+        address stableSwapOracleAddress,
+        address curvePoolAddress,
+        address admin
+    ) external;
+}
+
+contract PriceFeedProxy is ERC1967Proxy {
     /**
      * @dev Storage slot with the admin of the contract.
      * This is the keccak-256 hash of "eip1967.proxy.admin" subtracted by 1, and is
@@ -34,15 +43,31 @@ contract UpgradableProxy is ERC1967Proxy {
     event AdminChanged(address previousAdmin, address newAdmin);
 
     /**
-     * @dev Initializes the upgradeable proxy with an initial implementation specified by `logic`.
-     *
-     * If `data` is nonempty, it's used as data in a delegate call to `logic`. This will typically
-     * be an encoded function call, and allows initializating the storage of the proxy like
-     * a Solidity constructor.
+     * @dev Initializes the upgradeable proxy with an initial implementation
+     *      specified by `priceFeedImpl`, calling its `initialize` function
+     *      on the proxy contract state.
      */
-    constructor(address logic, bytes memory data) payable ERC1967Proxy(logic, data) {
+    constructor(
+        address priceFeedImpl,
+        uint256 maxSafePriceDifference,
+        address stableSwapOracleAddress,
+        address curvePoolAddress,
+        address admin
+    )
+        payable
+        ERC1967Proxy(
+            priceFeedImpl,
+            abi.encodeWithSelector(
+                IPriceFeed(address(0)).initialize.selector,
+                maxSafePriceDifference,
+                stableSwapOracleAddress,
+                curvePoolAddress,
+                admin
+            )
+        )
+    {
         assert(_ADMIN_SLOT == bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1));
-        _setAdmin(msg.sender);
+        _setAdmin(admin);
     }
 
     /**
@@ -53,13 +78,18 @@ contract UpgradableProxy is ERC1967Proxy {
     }
 
     /**
-     * @dev Upgrades the proxy to a new implementation.
+     * @dev Upgrades the proxy to a new implementation, optionally performing an additional setup call.
      *
      * Emits an {Upgraded} event.
+     *
+     * @param setupCalldata Data for the setup call. The call is skipped if data is empty.
      */
-    function upgradeTo(address newImplementation) external {
+    function upgradeTo(address newImplementation, bytes memory setupCalldata) external {
         require(msg.sender == _getAdmin(), "ERC1967: unauthorized");
         _upgradeTo(newImplementation);
+        if (setupCalldata.length > 0) {
+            Address.functionDelegateCall(newImplementation, setupCalldata, "ERC1967: setup failed");
+        }
     }
 
     /**

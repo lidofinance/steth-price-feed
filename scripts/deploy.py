@@ -1,4 +1,4 @@
-from brownie import StEthPriceFeed, UpgradableProxy, Contract
+from brownie import StEthPriceFeed, PriceFeedProxy, Contract
 from utils.config import get_deployer_account, get_is_live, get_env, prompt_bool
 
 
@@ -10,13 +10,14 @@ def deploy_price_feed(
     tx_params
 ):
     price_feed_contract = StEthPriceFeed.deploy(tx_params, publish_source=False)
-    call_data = price_feed_contract.initialize.encode_input(
+    proxy = PriceFeedProxy.deploy(
+        price_feed_contract,
         max_safe_price_difference,
         stable_swap_oracle_address,
         curve_pool_address,
-        admin
+        admin,
+        tx_params
     )
-    proxy = UpgradableProxy.deploy(price_feed_contract, call_data, tx_params, publish_source=False)
     return Contract.from_abi('StEthPriceFeed', proxy.address, StEthPriceFeed.abi)
 
 
@@ -27,7 +28,7 @@ def main():
     max_safe_price_difference = get_env('MAX_SAFE_PRICE_DIFFERENCE', False, default=500)
     admin = get_env('ADMIN', False, default=deployer)
 
-    print(f'DEPLOYER: {deployer}')
+    print(f'Deployer: {deployer}')
     print(f'Stable swap oracle address: {stable_swap_oracle_address}')
     print(f'Curve pool oracle address: {curve_pool_address}')
     print(
