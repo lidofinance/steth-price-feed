@@ -14,12 +14,12 @@ def deployer(accounts):
 
 @pytest.fixture(scope='function')
 def deploy_price_feed(deployer, stable_swap_oracle, curve_pool):
-    def deploy(max_safe_price_difference):
+    def deploy(max_safe_price_difference, deployer = deployer, admin = deployer):
         return scripts.deploy.deploy_price_feed(
             max_safe_price_difference=max_safe_price_difference,
             stable_swap_oracle_address=stable_swap_oracle,
             curve_pool_address=curve_pool,
-            admin=deployer,
+            admin=admin,
             tx_params={'from': deployer}
         )
     return deploy
