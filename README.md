@@ -14,6 +14,13 @@ to `10**18` would mean that stETH is pegged 1:1 to ETH.
 The parameter `N` is configured by the price feed admin; we're planning to initially set it to `5%`. See the detailed specification in [specification.md](./specification.md).
 
 
+## Deployments
+
+The feed is deployed behind an upgradeable proxy, so the contract ABI on Etherscan corresponds to the proxy itself. The feed ABI can be found in [`interfaces/StEthPriceFeed.json`](./interfaces/StEthPriceFeed.json).
+
+* Mainnet: [`0xAb55Bf4DfBf469ebfe082b7872557D1F87692Fe6`](https://etherscan.io/address/0xab55bf4dfbf469ebfe082b7872557d1f87692fe6)
+
+
 ## Price feed interface
 
 * `safe_price() -> (price: uint256, timestamp: uint256)` returns the cached safe price
@@ -33,7 +40,7 @@ The parameter `N` is configured by the price feed admin; we're planning to initi
 ## Deploy variables
 
 * `DEPLOYER` required
-* `STABLE_SWAP_ORACLE_ADDRESS` required, address of stable swap oracle
-* `CURVE_POOL_ADDRESS` required, address of curve pool
-* `MAX_SAFE_PRICE_DIFFERENCE` optional, min:0, max:10000, default to 500
-* `ADMIN` optional, default to DEPLOYER
+* `STABLE_SWAP_ORACLE_ADDRESS` required, address of the Curve pool oracle
+* `CURVE_POOL_ADDRESS` required, address of the Curve pool
+* `MAX_SAFE_PRICE_DIFFERENCE` optional, min: 0, max: 10000, defaults to 500
+* `ADMIN` optional, defaults to `DEPLOYER`
