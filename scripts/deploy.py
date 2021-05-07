@@ -1,5 +1,18 @@
-from brownie import StEthPriceFeed, PriceFeedProxy, Contract
+from brownie import Contract
 from utils.config import get_deployer_account, get_is_live, get_env, prompt_bool
+
+try:
+    from brownie import StEthPriceFeed, PriceFeedProxy
+except ImportError:
+    print("You're probably running inside Brownie console. Please call:")
+    print("set_console_globals(StEthPriceFeed=StEthPriceFeed, PriceFeedProxy=PriceFeedProxy)")
+
+
+def set_console_globals(**kwargs):
+    global StEthPriceFeed
+    global PriceFeedProxy
+    StEthPriceFeed = kwargs['StEthPriceFeed']
+    PriceFeedProxy = kwargs['PriceFeedProxy']
 
 
 def deploy_price_feed(
