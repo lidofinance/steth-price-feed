@@ -1,6 +1,6 @@
 # stETH Price Oracle
 
-Lido intends to provide secure and reliable price feed for stETH for protocols that intend to integrate it. Unfortunately, Chainlik is not available for stETH and Uniswap TWAP is not feasible at the moment: we'd want deep liquidity on stETH/ETH pair for this price, but Uni v2 doesn't allow tight curves for similaraly-priced coins.
+Lido intends to provide secure and reliable price feed for stETH for protocols that intend to integrate it. Unfortunately, Chainlink is not available for stETH, and Uniswap TWAP is not feasible at the moment: we'd want deep liquidity on stETH/ETH pair for this price, but Uni v2 doesn't allow tight curves for similaraly-priced coins.
 
 stETH has deep liquidity in the [Curve pool](https://etherscan.io/address/0xdc24316b9ae028f1497c275eb9192a3ea0f67022) but it doesn't have a TWAP capability, so that's out, too. In the moment Curve price is flashloanable, if not easily. We decided that in a pinch we can provide a "price anchor" that would attest that "stETH/ETH price on Curve used to be around in recent past" (implemented using the Merkle price oracle) and a price feed that could provide a reasonably safe estimation of current stETH/ETH price.
 
