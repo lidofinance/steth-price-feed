@@ -1,6 +1,6 @@
 # stETH Price Oracle
 
-Lido intends to provide secure and reliable price feed for stETH for protocols that intend to integrate it. Unfortunately, Chainlik is not available for stETH and Uniswap TWAP is not feasible at the moment: we'd want deep liquidity on stETH/ETH pair for this price, but Uni v2 doesn't allow tight curves for similaraly-priced coins.
+Lido intends to provide secure and reliable price feed for stETH for protocols that intend to integrate it. Unfortunately, Chainlink is not available for stETH, and Uniswap TWAP is not feasible at the moment: we'd want deep liquidity on stETH/ETH pair for this price, but Uni v2 doesn't allow tight curves for similaraly-priced coins.
 
 stETH has deep liquidity in the [Curve pool](https://etherscan.io/address/0xdc24316b9ae028f1497c275eb9192a3ea0f67022) but it doesn't have a TWAP capability, so that's out, too. In the moment Curve price is flashloanable, if not easily. We decided that in a pinch we can provide a "price anchor" that would attest that "stETH/ETH price on Curve used to be around in recent past" (implemented using the Merkle price oracle) and a price feed that could provide a reasonably safe estimation of current stETH/ETH price.
 
@@ -42,11 +42,13 @@ The feed contract should be put behind an upgradeable proxy so the implementatio
 
 ### Interface
 
-##### `__init__(max_safe_price_difference: uint256, admin: address)`
+##### `initialize(max_safe_price_difference: uint256, stable_swap_oracle_address: address, curve_pool_address: address, admin: address)`
 
-Initializes the contract.
+Initializes the contract. Reverts if 1) `max_safe_price_difference` is above 10000, 2) `stable_swap_oracle_address` or `curve_pool_address` are zero addresses, 3) contract is already initiated.
 
 * `max_safe_price_difference` maximum allowed safe price change: how much the price fetched from the pool is allowed to deviate from the time-shifted price provided by the Merkle oracle in order to be considered safe; `10**18` corresponds to 100%.
+* `stable_swap_oracle_address` the address of the time-shifted price oracle.
+* `curve_pool_address` the address of the ETH/stETH curve pool.
 * `admin` the address that's allowed to change the maximum allowed price change.
 
 
@@ -62,23 +64,23 @@ def safe_price():
 ```
 
 
-##### `current_price() -> (price: uint256, is_safe: bool)`
+##### `current_price() -> (price: uint256, is_safe: bool, anchor_price: uint256)`
 
-Returns the current pool price and whether the price is safe.
+Returns the current pool price, whether the price is safe, and the current time-shifted price.
 
 ```python
 @view
 def _current_price():
   pool_price = StableSwap(CURVE_POOL_ADDR).get_dy(1, 0, 10**18)
   shifted_price = StableSwapStateOracle(ORACLE_ADDR).stethPrice()
-  is_changed_unsafely = self.percentage_diff(pool_price, shifted_price) > self.max_safe_price_difference
-  return (pool_price, is_changed_unsafely)
+  has_changed_unsafely = self.percentage_diff(pool_price, shifted_price) > self.max_safe_price_difference
+  return (pool_price, has_changed_unsafely, shifted_price)
 
 @view
 def current_price():
-    (price, is_changed_unsafely) = self._current_price()
-    is_safe = price <= 10**18 and not is_changed_unsafely
-    return (price, is_safe)
+    (price, has_changed_unsafely, shifted_price) = self._current_price()
+    is_safe = price <= 10**18 and not has_changed_unsafely
+    return (price, is_safe, shifted_price)
 ```
 
 
@@ -100,7 +102,7 @@ def update_safe_price():
 
 ##### `fetch_safe_price(max_age: uint256) -> (price: uint256, timestamp: uint256)`
 
-Returns the cached safe price and its timestamp. Calls `update_safe_price()` prior to that if the cached safe price is older than `max_age` seconds.
+Returns the cached safe price and its timestamp. Calls `update_safe_price()` prior to that if the cached safe price is older than `max_age` seconds (note: that call reverts, if the price is unsafe).
 
 ```python
 def fetch_safe_price(max_age):
@@ -119,7 +121,7 @@ Updates the admin address. May only be called by the current admin.
 
 ##### `set_max_safe_price_difference(max_safe_price_difference: uint256)`
 
-Updates the maximum difference between the safe price and the time-shifted price. May only be called by the admin.
+Updates the maximum difference between the safe price and the time-shifted price. May only be called by the admin. Reverts if the number provided is above 10000.
 
 ## Fail conditions
 

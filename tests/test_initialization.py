@@ -1,4 +1,4 @@
-from brownie import reverts
+from brownie import reverts, ZERO_ADDRESS
 
 
 def test_uninitialized_contract_reverts(deployer, stranger, StEthPriceFeed):
@@ -24,6 +24,50 @@ def test_uninitialized_contract_reverts(deployer, stranger, StEthPriceFeed):
 
     with reverts():
         price_feed.set_max_safe_price_difference(142, {'from': deployer})
+
+def test_cannot_initialize_with_zero_curve_address(deployer, stable_swap_oracle, StEthPriceFeed):
+    price_feed = StEthPriceFeed.deploy({'from': deployer})
+    with reverts():
+        price_feed.initialize(
+            100,
+            stable_swap_oracle.address,
+            ZERO_ADDRESS,
+            deployer,
+            {'from': deployer}
+        )
+
+def test_cannot_initialize_with_zero_oracle_address(deployer, curve_pool, StEthPriceFeed):
+    price_feed = StEthPriceFeed.deploy({'from': deployer})
+    with reverts():
+        price_feed.initialize(
+            100,
+            ZERO_ADDRESS,
+            curve_pool.address,
+            deployer,
+            {'from': deployer}
+        )
+
+def test_can_initialize_with_zero_admin_address(deployer, stable_swap_oracle, curve_pool, StEthPriceFeed):
+    price_feed = StEthPriceFeed.deploy({'from': deployer})
+    price_feed.initialize(
+        100,
+        stable_swap_oracle.address,
+        curve_pool.address,
+        ZERO_ADDRESS,
+        {'from': deployer}
+    )
+    assert price_feed.admin() == ZERO_ADDRESS
+
+def test_cannot_initialize_with_max_price_diff_above_10000(deployer, stable_swap_oracle, curve_pool, StEthPriceFeed):
+    price_feed = StEthPriceFeed.deploy({'from': deployer})
+    with reverts():
+        price_feed.initialize(
+            10001,
+            stable_swap_oracle.address,
+            curve_pool.address,
+            ZERO_ADDRESS,
+            {'from': deployer}
+        )
 
 
 def test_cannot_initialize_twice(deployer, stable_swap_oracle, curve_pool, StEthPriceFeed):
