@@ -42,11 +42,13 @@ The feed contract should be put behind an upgradeable proxy so the implementatio
 
 ### Interface
 
-##### `__init__(max_safe_price_difference: uint256, admin: address)`
+##### `initialize(max_safe_price_difference: uint256, stable_swap_oracle_address: address, curve_pool_address: address, admin: address)`
 
-Initializes the contract.
+Initializes the contract. Reverts if 1) `max_safe_price_difference` above 10000, 2) `stable_swap_oracle_address` or `curve_pool_address` are zero addresses, 3) contract is already initiated.
 
 * `max_safe_price_difference` maximum allowed safe price change: how much the price fetched from the pool is allowed to deviate from the time-shifted price provided by the Merkle oracle in order to be considered safe; `10**18` corresponds to 100%.
+* `stable_swap_oracle_address` the address of the time-shifted price oracle.
+* `curve_pool_address` the address of the ETH/stETH curve pool.
 * `admin` the address that's allowed to change the maximum allowed price change.
 
 

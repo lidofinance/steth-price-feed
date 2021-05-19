@@ -42,8 +42,10 @@ def initialize(
     @param curve_pool_address Curve stEth/Eth pool address
     @param stable_swap_oracle_address Stable swap oracle address
     """
-    assert curve_pool_address != ZERO_ADDRESS
     assert self.curve_pool_address == ZERO_ADDRESS
+    assert max_safe_price_difference <= 10000
+    assert stable_swap_oracle_address != ZERO_ADDRESS
+    assert curve_pool_address != ZERO_ADDRESS
 
     self.max_safe_price_difference = max_safe_price_difference
     self.admin = admin
