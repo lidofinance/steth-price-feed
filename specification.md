@@ -121,7 +121,7 @@ Updates the admin address. May only be called by the current admin.
 
 ##### `set_max_safe_price_difference(max_safe_price_difference: uint256)`
 
-Updates the maximum difference between the safe price and the time-shifted price. May only be called by the admin.
+Updates the maximum difference between the safe price and the time-shifted price. May only be called by the admin. Reverts if the number provided is above 10000.
 
 ## Fail conditions
 

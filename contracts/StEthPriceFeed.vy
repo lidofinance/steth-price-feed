@@ -158,4 +158,5 @@ def set_max_safe_price_difference(max_safe_price_difference: uint256):
     May only be called by the admin.
     """
     assert msg.sender == self.admin
+    assert max_safe_price_difference <= 10000
     self.max_safe_price_difference = max_safe_price_difference
