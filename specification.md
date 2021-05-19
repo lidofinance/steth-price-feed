@@ -102,7 +102,7 @@ def update_safe_price():
 
 ##### `fetch_safe_price(max_age: uint256) -> (price: uint256, timestamp: uint256)`
 
-Returns the cached safe price and its timestamp. Calls `update_safe_price()` prior to that if the cached safe price is older than `max_age` seconds.
+Returns the cached safe price and its timestamp. Calls `update_safe_price()` prior to that if the cached safe price is older than `max_age` seconds (note: that call reverts, if the price is unsafe).
 
 ```python
 def fetch_safe_price(max_age):
