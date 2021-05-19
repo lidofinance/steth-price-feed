@@ -75,32 +75,33 @@ def safe_price() -> (uint256, uint256):
 
 @view
 @internal
-def _current_price() -> (uint256, bool):
+def _current_price() -> (uint256, bool, uint256):
     pool_price: uint256 = StableSwap(self.curve_pool_address).get_dy(CURVE_STETH_INDEX, CURVE_ETH_INDEX, 10**18)
-    shifted_price: uint256 = StableSwapStateOracle(self.stable_swap_oracle_address).stethPrice()
-    is_changed_unsafely: bool = self._percentage_diff(pool_price, shifted_price) > self.max_safe_price_difference
-    return (pool_price, is_changed_unsafely)
+    oracle_price: uint256 = StableSwapStateOracle(self.stable_swap_oracle_address).stethPrice()
+    is_changed_unsafely: bool = self._percentage_diff(pool_price, oracle_price) > self.max_safe_price_difference
+    return (pool_price, is_changed_unsafely, oracle_price)
 
 
 @view
 @external
-def current_price() -> (uint256, bool):
+def current_price() -> (uint256, bool, uint256):
     """
     @dev Returns the current pool price and whether the price is safe.
     """
-    price: uint256 = 0
+    current_price: uint256 = 0
     is_changed_unsafely: bool = True
-    price, is_changed_unsafely = self._current_price()
-    is_safe: bool = price <= 10**18 and not is_changed_unsafely
-    return (price, is_safe)
+    oracle_price: uint256 = 0
+    current_price, is_changed_unsafely, oracle_price = self._current_price()
+    is_safe: bool = current_price <= 10**18 and not is_changed_unsafely
+    return (current_price, is_safe, oracle_price)
 
 
 @internal
 def _update_safe_price() -> uint256:
     price: uint256 = 0
     is_changed_unsafely: bool = True
-
-    price, is_changed_unsafely = self._current_price()
+    _: uint256 = 0
+    price, is_changed_unsafely, _ = self._current_price()
     assert not is_changed_unsafely, "price is not safe"
 
     price = min(10**18, price)

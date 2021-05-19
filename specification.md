@@ -64,9 +64,9 @@ def safe_price():
 ```
 
 
-##### `current_price() -> (price: uint256, is_safe: bool)`
+##### `current_price() -> (price: uint256, is_safe: bool, anchor_price: uint256)`
 
-Returns the current pool price and whether the price is safe.
+Returns the current pool price, whether the price is safe, and the current time-shifted price.
 
 ```python
 @view
@@ -74,13 +74,13 @@ def _current_price():
   pool_price = StableSwap(CURVE_POOL_ADDR).get_dy(1, 0, 10**18)
   shifted_price = StableSwapStateOracle(ORACLE_ADDR).stethPrice()
   is_changed_unsafely = self.percentage_diff(pool_price, shifted_price) > self.max_safe_price_difference
-  return (pool_price, is_changed_unsafely)
+  return (pool_price, is_changed_unsafely, shifted_price)
 
 @view
 def current_price():
-    (price, is_changed_unsafely) = self._current_price()
+    (price, is_changed_unsafely, shifted_price) = self._current_price()
     is_safe = price <= 10**18 and not is_changed_unsafely
-    return (price, is_safe)
+    return (price, is_safe, shifted_price)
 ```
 
 

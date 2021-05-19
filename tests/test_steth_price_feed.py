@@ -25,32 +25,32 @@ def test_current_price_safe(stable_swap_oracle, curve_pool, price_feed):
     stable_swap_oracle.set_price(1e18)
 
     curve_pool.set_price(0.98 * 1e18)
-    assert price_feed.current_price() == (0.98 * 1e18, True)
+    assert price_feed.current_price() == (0.98 * 1e18, True, 1e18)
 
     curve_pool.set_price(0.95 * 1e18)
-    assert price_feed.current_price() == (0.95 * 1e18, True)
+    assert price_feed.current_price() == (0.95 * 1e18, True, 1e18)
 
 
 def test_current_price_safe_equals_1(stable_swap_oracle, curve_pool, price_feed):
     stable_swap_oracle.set_price(0.99 * 1e18)
     curve_pool.set_price(1e18)
-    assert price_feed.current_price() == (1e18, True)
+    assert price_feed.current_price() == (1e18, True, 0.99 * 1e18)
 
 
 def test_current_price_unsafe_gt_1(stable_swap_oracle, curve_pool, price_feed):
     stable_swap_oracle.set_price(1e18)
     curve_pool.set_price(1.02 * 1e18)
-    assert price_feed.current_price() == (1.02 * 1e18, False)
+    assert price_feed.current_price() == (1.02 * 1e18, False, 1e18)
 
 
 def test_current_price_unsafe_diff(stable_swap_oracle, curve_pool, price_feed):
     stable_swap_oracle.set_price(1e18)
     curve_pool.set_price(0.949 * 1e18)
-    assert price_feed.current_price() == (0.949 * 1e18, False)
+    assert price_feed.current_price() == (0.949 * 1e18, False, 1e18)
 
     stable_swap_oracle.set_price(0.949 * 1e18)
     curve_pool.set_price(1e18)
-    assert price_feed.current_price() == (1e18, False)
+    assert price_feed.current_price() == (1e18, False, 0.949 * 1e18)
 
 
 def test_update_safe_price(stable_swap_oracle, curve_pool, price_feed, stranger, helpers):
