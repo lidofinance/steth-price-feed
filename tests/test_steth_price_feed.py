@@ -238,7 +238,7 @@ def test_set_max_safe_price_difference_max_check(price_feed):
         price_feed.set_max_safe_price_difference(1001, {'from': admin})
 
 
-def test_set_max_safe_price_difference(price_feed, stable_swap_oracle, curve_pool, stranger):
+def test_set_max_safe_price_difference(price_feed, stable_swap_oracle, curve_pool, stranger, helpers):
     oracle_price = 1e18
 
     stable_swap_oracle.set_price(oracle_price)
@@ -248,7 +248,11 @@ def test_set_max_safe_price_difference(price_feed, stable_swap_oracle, curve_poo
         price_feed.update_safe_price({'from': stranger})
 
     admin = price_feed.admin()
-    price_feed.set_max_safe_price_difference(1000, {'from': admin})
+    tx = price_feed.set_max_safe_price_difference(1000, {'from': admin})
+
+    helpers.assert_single_event_named('MaxSafePriceDifferenceChanged', tx, {
+      'max_safe_price_difference': 1000
+    })
 
     assert price_feed.max_safe_price_difference() == 1000 # 10%
 

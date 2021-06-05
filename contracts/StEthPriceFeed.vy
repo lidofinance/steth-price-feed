@@ -26,6 +26,8 @@ event SafePriceUpdated:
     from_price: uint256
     to_price: uint256
 
+event MaxSafePriceDifferenceChanged:
+    max_safe_price_difference: uint256
 
 @external
 def initialize(
@@ -162,3 +164,4 @@ def set_max_safe_price_difference(max_safe_price_difference: uint256):
     assert msg.sender == self.admin
     assert max_safe_price_difference <= 1000
     self.max_safe_price_difference = max_safe_price_difference
+    log MaxSafePriceDifferenceChanged(max_safe_price_difference)
