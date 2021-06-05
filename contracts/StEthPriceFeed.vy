@@ -26,6 +26,9 @@ event SafePriceUpdated:
     from_price: uint256
     to_price: uint256
 
+event AdminChanged:
+    admin: address
+
 event MaxSafePriceDifferenceChanged:
     max_safe_price_difference: uint256
 
@@ -151,6 +154,7 @@ def set_admin(admin: address):
     """
     assert msg.sender == self.admin
     self.admin = admin
+    log AdminChanged(admin)
 
 
 @external

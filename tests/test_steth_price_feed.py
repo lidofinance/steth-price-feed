@@ -259,18 +259,26 @@ def test_set_max_safe_price_difference(price_feed, stable_swap_oracle, curve_poo
     price_feed.update_safe_price({'from': stranger})
 
 
-def test_set_admin(price_feed, accounts, stranger):
+def test_set_admin(price_feed, accounts, stranger, helpers):
     with reverts():
         price_feed.set_admin(stranger, {'from': stranger})
 
     old_admin = price_feed.admin()
     new_admin = accounts[2]
 
-    price_feed.set_admin(new_admin, {'from': old_admin})
+    tx = price_feed.set_admin(new_admin, {'from': old_admin})
     assert price_feed.admin() == new_admin
+
+    helpers.assert_single_event_named('AdminChanged', tx, {
+      'admin': new_admin,
+    })
 
     with reverts():
         price_feed.set_admin(old_admin, {'from': old_admin})
 
-    price_feed.set_admin(old_admin, {'from': new_admin})
+    tx = price_feed.set_admin(old_admin, {'from': new_admin})
     assert price_feed.admin() == old_admin
+
+    helpers.assert_single_event_named('AdminChanged', tx, {
+      'admin': old_admin,
+    })
