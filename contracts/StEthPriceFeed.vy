@@ -6,6 +6,10 @@
 CURVE_ETH_INDEX: constant(uint256) = 0
 CURVE_STETH_INDEX: constant(uint256) = 1
 
+# Note: check out the unstructured storage upgrade guide before making changes
+# to the variable order after the deployment to prevent storage collisions
+# https://docs.openzeppelin.com/upgrades-plugins/1.x/proxies#unstructured-storage-proxie
+
 admin: public(address)
 max_safe_price_difference: public(uint256)
 safe_price_value: public(uint256)
