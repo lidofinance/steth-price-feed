@@ -235,7 +235,7 @@ def test_set_max_safe_price_difference_acl(price_feed, stranger):
 def test_set_max_safe_price_difference_max_check(price_feed):
     admin = price_feed.admin()
     with reverts():
-        price_feed.set_max_safe_price_difference(10001, {'from': admin})
+        price_feed.set_max_safe_price_difference(1001, {'from': admin})
 
 
 def test_set_max_safe_price_difference(price_feed, stable_swap_oracle, curve_pool, stranger):

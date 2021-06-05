@@ -37,13 +37,13 @@ def initialize(
     """
     @dev Initializes the feed.
 
-    @param max_safe_price_difference maximum allowed safe price change. 10000 equals to 100%
+    @param max_safe_price_difference maximum allowed safe price change. 10000 equals to 100%. Max value allowed is 1000 (10%)
     @param admin Contract admin address, that's allowed to change the maximum allowed price change
     @param curve_pool_address Curve stEth/Eth pool address
     @param stable_swap_oracle_address Stable swap oracle address
     """
     assert self.curve_pool_address == ZERO_ADDRESS
-    assert max_safe_price_difference <= 10000
+    assert max_safe_price_difference <= 1000
     assert stable_swap_oracle_address != ZERO_ADDRESS
     assert curve_pool_address != ZERO_ADDRESS
 
@@ -157,7 +157,8 @@ def set_max_safe_price_difference(max_safe_price_difference: uint256):
     @dev Updates the maximum difference between the safe price and the time-shifted price.
 
     May only be called by the admin.
+    Maximal difference accepted is 10% (1000)
     """
     assert msg.sender == self.admin
-    assert max_safe_price_difference <= 10000
+    assert max_safe_price_difference <= 1000
     self.max_safe_price_difference = max_safe_price_difference
