@@ -58,11 +58,11 @@ def test_can_initialize_with_zero_admin_address(deployer, stable_swap_oracle, cu
     )
     assert price_feed.admin() == ZERO_ADDRESS
 
-def test_cannot_initialize_with_max_price_diff_above_10000(deployer, stable_swap_oracle, curve_pool, StEthPriceFeed):
+def test_cannot_initialize_with_max_price_diff_above_1000(deployer, stable_swap_oracle, curve_pool, StEthPriceFeed):
     price_feed = StEthPriceFeed.deploy({'from': deployer})
     with reverts():
         price_feed.initialize(
-            10001,
+            1001,
             stable_swap_oracle.address,
             curve_pool.address,
             ZERO_ADDRESS,

@@ -1,5 +1,5 @@
 import pytest
-from brownie import reverts, Contract, PriceFeedProxy
+from brownie import reverts, Contract, PriceFeedProxy, ZERO_ADDRESS
 
 
 @pytest.fixture(scope='module')
@@ -41,3 +41,7 @@ def test_non_admin_cannot_upgrade(price_feed, deployer, stranger, StEthPriceFeed
 
     with reverts():
         proxy.upgradeTo(new_feed_impl, b'', {'from': deployer})
+
+def test_admin_can_set_zero_admin(price_feed, admin):
+    price_feed.set_admin(ZERO_ADDRESS, {'from': admin})
+    assert price_feed.admin() == ZERO_ADDRESS

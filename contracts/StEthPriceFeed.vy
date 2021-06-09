@@ -6,6 +6,10 @@
 CURVE_ETH_INDEX: constant(uint256) = 0
 CURVE_STETH_INDEX: constant(uint256) = 1
 
+# Note: check out the unstructured storage upgrade guide before making changes
+# to the variable order after the deployment to prevent storage collisions
+# https://docs.openzeppelin.com/upgrades-plugins/1.x/proxies#unstructured-storage-proxie
+
 admin: public(address)
 max_safe_price_difference: public(uint256)
 safe_price_value: public(uint256)
@@ -26,6 +30,11 @@ event SafePriceUpdated:
     from_price: uint256
     to_price: uint256
 
+event AdminChanged:
+    admin: address
+
+event MaxSafePriceDifferenceChanged:
+    max_safe_price_difference: uint256
 
 @external
 def initialize(
@@ -37,13 +46,13 @@ def initialize(
     """
     @dev Initializes the feed.
 
-    @param max_safe_price_difference maximum allowed safe price change. 10000 equals to 100%
+    @param max_safe_price_difference maximum allowed safe price change. 10000 equals to 100%. Max value allowed is 1000 (10%)
     @param admin Contract admin address, that's allowed to change the maximum allowed price change
     @param curve_pool_address Curve stEth/Eth pool address
     @param stable_swap_oracle_address Stable swap oracle address
     """
     assert self.curve_pool_address == ZERO_ADDRESS
-    assert max_safe_price_difference <= 10000
+    assert max_safe_price_difference <= 1000
     assert stable_swap_oracle_address != ZERO_ADDRESS
     assert curve_pool_address != ZERO_ADDRESS
 
@@ -149,6 +158,7 @@ def set_admin(admin: address):
     """
     assert msg.sender == self.admin
     self.admin = admin
+    log AdminChanged(admin)
 
 
 @external
@@ -157,7 +167,9 @@ def set_max_safe_price_difference(max_safe_price_difference: uint256):
     @dev Updates the maximum difference between the safe price and the time-shifted price.
 
     May only be called by the admin.
+    Maximal difference accepted is 10% (1000)
     """
     assert msg.sender == self.admin
-    assert max_safe_price_difference <= 10000
+    assert max_safe_price_difference <= 1000
     self.max_safe_price_difference = max_safe_price_difference
+    log MaxSafePriceDifferenceChanged(max_safe_price_difference)
