@@ -93,7 +93,21 @@ def _current_price() -> (uint256, bool, uint256):
 
 @view
 @external
-def current_price() -> (uint256, bool, uint256):
+def full_price_info() -> (uint256, bool, uint256):
+    """
+    @dev Returns the current pool price, whether the price is safe, and the anchor price.
+    """
+    current_price: uint256 = 0
+    has_changed_unsafely: bool = True
+    oracle_price: uint256 = 0
+    current_price, has_changed_unsafely, oracle_price = self._current_price()
+    is_safe: bool = current_price <= 10**18 and not has_changed_unsafely
+    return (current_price, is_safe, oracle_price)
+
+
+@view
+@external
+def current_price() -> (uint256, bool):
     """
     @dev Returns the current pool price and whether the price is safe.
     """
@@ -102,7 +116,7 @@ def current_price() -> (uint256, bool, uint256):
     oracle_price: uint256 = 0
     current_price, has_changed_unsafely, oracle_price = self._current_price()
     is_safe: bool = current_price <= 10**18 and not has_changed_unsafely
-    return (current_price, is_safe, oracle_price)
+    return (current_price, is_safe)
 
 
 @internal

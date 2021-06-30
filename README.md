@@ -26,8 +26,8 @@ The feed is deployed behind an upgradeable proxy, so the contract ABI on Ethersc
 * `safe_price() -> (price: uint256, timestamp: uint256)` returns the cached safe price
   and its timestamp.
 
-* `current_price() -> (price: uint256, is_safe: bool, anchor_price: uint256)` returns the current pool price, whether
-  the price is safe, and the current historical price.
+* `current_price() -> (price: uint256, is_safe: bool)` returns the current pool price and whether
+  the price is safe.
 
 * `update_safe_price() -> uint256` sets the cached safe price to the max(current pool price, 1)
   given that the latter is safe.
